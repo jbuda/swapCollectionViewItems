@@ -12,6 +12,7 @@
 		24E1EFE61DB567E100C3C78F /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 24E1EFE41DB567E100C3C78F /* Main.storyboard */; };
 		24E1EFE81DB567E100C3C78F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 24E1EFE71DB567E100C3C78F /* Assets.xcassets */; };
 		24E1EFEB1DB567E100C3C78F /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 24E1EFE91DB567E100C3C78F /* LaunchScreen.storyboard */; };
+		24E1EFF31DB56BD100C3C78F /* CollectionViewItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 24E1EFF21DB56BD100C3C78F /* CollectionViewItem.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -22,6 +23,7 @@
 		24E1EFE71DB567E100C3C78F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		24E1EFEA1DB567E100C3C78F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		24E1EFEC1DB567E100C3C78F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		24E1EFF21DB56BD100C3C78F /* CollectionViewItem.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CollectionViewItem.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -60,6 +62,7 @@
 				24E1EFE71DB567E100C3C78F /* Assets.xcassets */,
 				24E1EFE91DB567E100C3C78F /* LaunchScreen.storyboard */,
 				24E1EFEC1DB567E100C3C78F /* Info.plist */,
+				24E1EFF21DB56BD100C3C78F /* CollectionViewItem.swift */,
 			);
 			path = swapcollectionitems;
 			sourceTree = "<group>";
@@ -137,6 +140,7 @@
 			files = (
 				24E1EFE31DB567E100C3C78F /* ViewController.swift in Sources */,
 				24E1EFE11DB567E100C3C78F /* AppDelegate.swift in Sources */,
+				24E1EFF31DB56BD100C3C78F /* CollectionViewItem.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
