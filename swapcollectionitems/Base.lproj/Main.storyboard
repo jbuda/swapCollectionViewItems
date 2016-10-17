@@ -68,6 +68,9 @@
                             <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="awq-0q-stB" secondAttribute="bottom" id="yDL-lN-9aN"/>
                         </constraints>
                     </view>
+                    <connections>
+                        <outlet property="collectionview" destination="awq-0q-stB" id="Izs-NH-huW"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>

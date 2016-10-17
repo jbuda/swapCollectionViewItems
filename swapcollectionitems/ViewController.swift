@@ -12,14 +12,17 @@ class ViewController: UIViewController {
   
   @IBOutlet weak var collectionview:UICollectionView!
   
+  fileprivate var longPress:UILongPressGestureRecognizer!
+  
   override func viewDidLoad() {
     super.viewDidLoad()
-    // Do any additional setup after loading the view, typically from a nib.
+    
+    longPress = UILongPressGestureRecognizer(target: self, action:#selector(handleLongGesture))
+    collectionview.addGestureRecognizer(longPress)
   }
 
   override func didReceiveMemoryWarning() {
     super.didReceiveMemoryWarning()
-    // Dispose of any resources that can be recreated.
   }
 }
 
@@ -37,6 +40,30 @@ extension ViewController:UICollectionViewDataSource {
     return cell
   }
   
+  func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
+    
+  }
+}
+
+extension ViewController {
+  
+  @objc func handleLongGesture(g:UILongPressGestureRecognizer) {
+    
+    switch(g.state) {
+    case .began:
+      guard let path = collectionview.indexPathForItem(at: g.location(in: collectionview)) else {
+        break
+      }
+      collectionview.beginInteractiveMovementForItem(at: path)
+    case .changed:
+      collectionview.updateInteractiveMovementTargetPosition(g.location(in: g.view!))
+    case .ended:
+      collectionview.endInteractiveMovement()
+    default:
+      break
+    }
+    
+  }
   
 }
 
