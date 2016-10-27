@@ -13,9 +13,13 @@ class ViewController: UIViewController {
   @IBOutlet weak var collectionview:UICollectionView!
   
   fileprivate var longPress:UILongPressGestureRecognizer!
+  fileprivate var movingFromItemPath:IndexPath!
+  fileprivate var movingToItemPath:IndexPath!
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    collectionview.isScrollEnabled = false
     
     longPress = UILongPressGestureRecognizer(target: self, action:#selector(handleLongGesture))
     collectionview.addGestureRecognizer(longPress)
@@ -29,7 +33,7 @@ class ViewController: UIViewController {
 extension ViewController:UICollectionViewDataSource {
   
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-    return 16
+    return 9
   }
   
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -54,11 +58,24 @@ extension ViewController {
       guard let path = collectionview.indexPathForItem(at: g.location(in: collectionview)) else {
         break
       }
+      
+      movingFromItemPath = path
+      
       collectionview.beginInteractiveMovementForItem(at: path)
-    case .changed:
-      collectionview.updateInteractiveMovementTargetPosition(g.location(in: g.view!))
+    //case .changed:
+    //  collectionview.updateInteractiveMovementTargetPosition(g.location(in: collectionview))
     case .ended:
       collectionview.endInteractiveMovement()
+      
+      movingToItemPath = collectionview.indexPathForItem(at: g.location(in: collectionview))
+      
+      print(movingToItemPath,movingFromItemPath)
+      
+      collectionview.performBatchUpdates({
+        self.collectionview.moveItem(at:self.movingFromItemPath, to:self.movingToItemPath)
+        }, completion:{ complete in
+          print("done")
+      })
     default:
       break
     }
