@@ -92,11 +92,11 @@ extension ViewController {
       
       movingPoints.current = g.location(in: collectionview)
       collectionview.updateInteractiveMovementTargetPosition(movingPoints.current)
-    case .ended:
-      placementTimer.cancel()
-      collectionview.endInteractiveMovement()
+    //case .ended:
+      //placementTimer.suspend()
+      //collectionview.endInteractiveMovement()
       
-      swapCells()
+      //swapCells()
 
     default:
       break
@@ -112,14 +112,21 @@ extension ViewController {
     
     print("Swapping ",toPath,fromPath)
 //    
-    placementTimer.cancel()
-//    
-    collectionview.performBatchUpdates({
-      self.collectionview.moveItem(at:fromPath, to:toPath)
-      self.collectionview.moveItem(at:toPath, to:fromPath)
-      }, completion:{ complete in
-        print("Finished updates")
-    })
+    placementTimer.suspend()
+    
+    DispatchQueue.main.async {
+    
+      self.collectionview.endInteractiveMovement()
+      
+      self.collectionview.performBatchUpdates({
+        self.collectionview.moveItem(at:fromPath, to:toPath)
+        self.collectionview.moveItem(at:toPath, to:fromPath)
+        }, completion:{ complete in
+          print("Finished updates")
+          self.movingToItemPath = nil
+          self.movingFromItemPath = nil
+      })
+    }
   }
   
   func cellPositionUpdate() {
