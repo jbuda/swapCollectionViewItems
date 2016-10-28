@@ -17,6 +17,7 @@ class ViewController: UIViewController {
   var movingFromItemPath:IndexPath!
   var movingToItemPath:IndexPath!
   var movingPoints = (current:CGPoint(x:0,y:0),previous:CGPoint(x:0,y:0))
+  var isItemActive:Bool = false
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -30,7 +31,7 @@ class ViewController: UIViewController {
     let queue = DispatchQueue(label: "com.buda.swapcollectionitems")
     
     placementTimer = DispatchSource.makeTimerSource(flags: [],queue:queue)
-    placementTimer.scheduleRepeating(deadline: .now(), interval:.milliseconds(1000))
+    placementTimer.scheduleRepeating(deadline: .now(), interval:.milliseconds(250))
     placementTimer.setEventHandler(handler: cellPositionUpdate)
   }
 
@@ -77,26 +78,29 @@ extension ViewController {
       guard let path = collectionview.indexPathForItem(at:movingPoints.current) else {
         break
       }
-      
+
+      isItemActive = true
       placementTimer.resume()
       movingFromItemPath = path
-      
-      
       
       print("Cell selected ",movingFromItemPath)
       
       collectionview.beginInteractiveMovementForItem(at: path)
     case .changed:
       
+      print("still moving")
+      
       movingToItemPath = collectionview.indexPathForItem(at: movingPoints.current)
       
       movingPoints.current = g.location(in: collectionview)
       collectionview.updateInteractiveMovementTargetPosition(movingPoints.current)
-    //case .ended:
+    case .ended:
+      
+      isItemActive = false
       //placementTimer.suspend()
       //collectionview.endInteractiveMovement()
       
-      //swapCells()
+      swapCells()
 
     default:
       break
@@ -112,7 +116,7 @@ extension ViewController {
     
     print("Swapping ",toPath,fromPath)
 //    
-    placementTimer.suspend()
+
     
     DispatchQueue.main.async {
     
@@ -123,8 +127,20 @@ extension ViewController {
         self.collectionview.moveItem(at:toPath, to:fromPath)
         }, completion:{ complete in
           print("Finished updates")
-          self.movingToItemPath = nil
-          self.movingFromItemPath = nil
+        
+          if self.isItemActive {
+            
+            self.movingFromItemPath = self.movingToItemPath
+            self.movingToItemPath = nil
+            self.collectionview.beginInteractiveMovementForItem(at: toPath)
+            
+          } else {
+            
+            self.placementTimer.suspend()
+            
+            self.movingToItemPath = nil
+            self.movingFromItemPath = nil
+          }
       })
     }
   }
