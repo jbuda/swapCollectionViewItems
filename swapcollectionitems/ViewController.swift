@@ -51,7 +51,7 @@ extension ViewController:UICollectionViewDataSource,UICollectionViewDelegate {
   
   func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveFromItemAt originalIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
     print("Target Index Path :",originalIndexPath,proposedIndexPath)
-    
+    // return the index path of selected to prevent other cells reshuffling as moving cell around
     return movingFromItemPath
   }
   
@@ -69,27 +69,17 @@ extension ViewController {
       
       movingFromItemPath = path
       
-      print("started")
+      print("Cell selected ",movingFromItemPath)
       
       collectionview.beginInteractiveMovementForItem(at: path)
     case .changed:
-      
-      
-      
       collectionview.updateInteractiveMovementTargetPosition(g.location(in: collectionview))
     case .ended:
       collectionview.endInteractiveMovement()
       
       movingToItemPath = collectionview.indexPathForItem(at: g.location(in: collectionview))
       
-      print(movingToItemPath,movingFromItemPath)
-      
-      collectionview.performBatchUpdates({
-        self.collectionview.moveItem(at:self.movingFromItemPath, to:self.movingToItemPath)
-        self.collectionview.moveItem(at:self.movingToItemPath, to:self.movingFromItemPath)
-        }, completion:{ complete in
-          print("done")
-      })
+      print("Swapping ",movingToItemPath,movingFromItemPath)
     default:
       break
     }
