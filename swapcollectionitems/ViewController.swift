@@ -80,6 +80,13 @@ extension ViewController {
       movingToItemPath = collectionview.indexPathForItem(at: g.location(in: collectionview))
       
       print("Swapping ",movingToItemPath,movingFromItemPath)
+      
+      collectionview.performBatchUpdates({
+        self.collectionview.moveItem(at:self.movingFromItemPath, to:self.movingToItemPath)
+        self.collectionview.moveItem(at:self.movingToItemPath, to:self.movingFromItemPath)
+        }, completion:{ complete in
+          print("Finished updates")
+      })
     default:
       break
     }
