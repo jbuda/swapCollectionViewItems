@@ -30,7 +30,7 @@ class ViewController: UIViewController {
   }
 }
 
-extension ViewController:UICollectionViewDataSource {
+extension ViewController:UICollectionViewDataSource,UICollectionViewDelegate {
   
   func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
     return 9
@@ -45,8 +45,16 @@ extension ViewController:UICollectionViewDataSource {
   }
   
   func collectionView(_ collectionView: UICollectionView, moveItemAt sourceIndexPath: IndexPath, to destinationIndexPath: IndexPath) {
-    
+    // called on end interactive movement
+    print("Move Item At :",sourceIndexPath,destinationIndexPath)
   }
+  
+  func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveFromItemAt originalIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
+    print("Target Index Path :",originalIndexPath,proposedIndexPath)
+    
+    return movingFromItemPath
+  }
+  
 }
 
 extension ViewController {
@@ -61,9 +69,14 @@ extension ViewController {
       
       movingFromItemPath = path
       
+      print("started")
+      
       collectionview.beginInteractiveMovementForItem(at: path)
-    //case .changed:
-    //  collectionview.updateInteractiveMovementTargetPosition(g.location(in: collectionview))
+    case .changed:
+      
+      
+      
+      collectionview.updateInteractiveMovementTargetPosition(g.location(in: collectionview))
     case .ended:
       collectionview.endInteractiveMovement()
       
@@ -73,6 +86,7 @@ extension ViewController {
       
       collectionview.performBatchUpdates({
         self.collectionview.moveItem(at:self.movingFromItemPath, to:self.movingToItemPath)
+        self.collectionview.moveItem(at:self.movingToItemPath, to:self.movingFromItemPath)
         }, completion:{ complete in
           print("done")
       })
