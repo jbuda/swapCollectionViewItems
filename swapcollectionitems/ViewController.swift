@@ -16,7 +16,7 @@ class ViewController: UIViewController {
   var longPress:UILongPressGestureRecognizer!
   var movingItemPaths:(origin:IndexPath?,active:IndexPath?,first:IndexPath?,second:IndexPath?)
   var movingPoints = (current:CGPoint(x:0,y:0),previous:CGPoint(x:0,y:0))
-  var isItemActive:Bool = false
+  //var isItemActive:Bool = false
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -77,7 +77,7 @@ extension ViewController {
         break
       }
 
-      isItemActive = true
+     // isItemActive = true
       placementTimer.resume()
       movingItemPaths.origin = path
       movingItemPaths.active = path
@@ -93,13 +93,12 @@ extension ViewController {
       collectionview.updateInteractiveMovementTargetPosition(movingPoints.current)
     case .ended:
       
-      isItemActive = false
+      //isItemActive = false
       placementTimer.suspend()
-      //collectionview.endInteractiveMovement()
       movingItemPaths.origin = nil
+      movingItemPaths.active = nil
+      movingItemPaths.first = nil
       collectionview.cancelInteractiveMovement()
-      
-      //swapCells()
 
     default:
       break
@@ -141,7 +140,7 @@ extension ViewController {
         }, completion:{ complete in
           print("Finished updates")
         
-          if self.isItemActive {
+         // if self.isItemActive {
             
             print("Continue movement with active cell at",self.movingItemPaths.active!)
             
@@ -152,16 +151,16 @@ extension ViewController {
             self.collectionview.beginInteractiveMovementForItem(at: self.movingItemPaths.active!)
             self.placementTimer.resume()
             
-          } else {
+         // } else {
             
-            print("Drop the cell")
+           // print("Drop the cell")
             
-            self.collectionview.endInteractiveMovement()
+           // self.collectionview.endInteractiveMovement()
             
                        // self.movingItemPaths.origin = nil
             //self.movingItemPaths.first = nil
             
-          }
+         // }
       })
     }
   }
