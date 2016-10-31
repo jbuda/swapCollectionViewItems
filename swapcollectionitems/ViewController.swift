@@ -14,7 +14,7 @@ class ViewController: UIViewController {
   
   var placementTimer:DispatchSourceTimer!
   var longPress:UILongPressGestureRecognizer!
-  var movingItemPaths:(original:IndexPath?,first:IndexPath?,second:IndexPath?)
+  var movingItemPaths:(origin:IndexPath?,active:IndexPath?,first:IndexPath?,second:IndexPath?)
   var movingPoints = (current:CGPoint(x:0,y:0),previous:CGPoint(x:0,y:0))
   var isItemActive:Bool = false
   
@@ -59,8 +59,8 @@ extension ViewController:UICollectionViewDataSource,UICollectionViewDelegate {
   
   func collectionView(_ collectionView: UICollectionView, targetIndexPathForMoveFromItemAt originalIndexPath: IndexPath, toProposedIndexPath proposedIndexPath: IndexPath) -> IndexPath {
     //print("Target Index Path :",originalIndexPath,proposedIndexPath)
-    // return the index path of selected to prevent other cells reshuffling as moving cell around
-    return movingItemPaths.original!
+    // return the index path of selected to prevent other cells reshuffling whilst moving cell around
+    return movingItemPaths.active!
   }
   
 }
@@ -79,14 +79,13 @@ extension ViewController {
 
       isItemActive = true
       placementTimer.resume()
-      movingItemPaths.original = path
+      movingItemPaths.origin = path
+      movingItemPaths.active = path
       
-      print("Cell selected ",movingItemPaths.original)
+      print("Cell active ",movingItemPaths.origin)
       
-      collectionview.beginInteractiveMovementForItem(at: path)
+      collectionview.beginInteractiveMovementForItem(at: movingItemPaths.active!)
     case .changed:
-      
-      print("still moving")
       
       movingItemPaths.first = collectionview.indexPathForItem(at: movingPoints.current)
       
@@ -95,10 +94,12 @@ extension ViewController {
     case .ended:
       
       isItemActive = false
-      //placementTimer.suspend()
+      placementTimer.suspend()
       //collectionview.endInteractiveMovement()
+      movingItemPaths.origin = nil
+      collectionview.cancelInteractiveMovement()
       
-      swapCells()
+      //swapCells()
 
     default:
       break
@@ -108,31 +109,47 @@ extension ViewController {
   
   func swapCells() {
     
-    print("Will swap")
+    var second:IndexPath?
     
-    guard let toPath = movingItemPaths.first, let fromPath = movingItemPaths.original else {
+    guard let origin = movingItemPaths.origin, var toPath = movingItemPaths.first else {
       return
     }
     
-    self.placementTimer.suspend()
+    if movingItemPaths.origin != movingItemPaths.active {
+      toPath = movingItemPaths.active!
+      second = movingItemPaths.first!
+    }
     
-    print("Can swap",toPath,fromPath)
+    print("Moving Paths",movingItemPaths)
+    print("Can swap",origin,toPath)
+    
+    self.placementTimer.suspend()
     
     DispatchQueue.main.async {
     
       self.collectionview.endInteractiveMovement()
       
       self.collectionview.performBatchUpdates({
-        self.collectionview.moveItem(at:fromPath, to:toPath)
-        self.collectionview.moveItem(at:toPath, to:fromPath)
+        self.collectionview.moveItem(at:origin, to:toPath)
+        
+          if let s = second {
+            self.collectionview.moveItem(at:toPath, to:s)
+            self.collectionview.moveItem(at: s, to: origin)
+          } else {
+            self.collectionview.moveItem(at:toPath, to:origin)
+          }
         }, completion:{ complete in
           print("Finished updates")
         
           if self.isItemActive {
             
-            self.movingItemPaths.original = self.movingItemPaths.first
+            print("Continue movement with active cell at",self.movingItemPaths.active!)
+            
+            //self.movingItemPaths.original = self.movingItemPaths.first
+            self.movingItemPaths.active = self.movingItemPaths.first
             self.movingItemPaths.first = nil
-            self.collectionview.beginInteractiveMovementForItem(at: toPath)
+
+            self.collectionview.beginInteractiveMovementForItem(at: self.movingItemPaths.active!)
             self.placementTimer.resume()
             
           } else {
@@ -140,15 +157,17 @@ extension ViewController {
             print("Drop the cell")
             
             self.collectionview.endInteractiveMovement()
-            self.movingItemPaths.first = nil
-            self.movingItemPaths.original = nil
+            
+                       // self.movingItemPaths.origin = nil
+            //self.movingItemPaths.first = nil
+            
           }
       })
     }
   }
   
   func cellPositionUpdate() {
-    print("Cell positions ",movingPoints)
+    //print("Cell positions ",movingPoints)
     if movingPoints.current == movingPoints.previous {
       swapCells()
     } else {
