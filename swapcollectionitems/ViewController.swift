@@ -114,6 +114,16 @@ extension ViewController {
       return
     }
     
+    if origin == toPath {
+      DispatchQueue.main.async {
+        self.collectionview.cancelInteractiveMovement()
+      }
+
+      return
+    }
+    
+    print("MADE IT HERE")
+    
     if movingItemPaths.origin != movingItemPaths.active {
       toPath = movingItemPaths.active!
       second = movingItemPaths.first!
