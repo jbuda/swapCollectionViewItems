@@ -12,12 +12,15 @@ class ViewController: UIViewController {
   
   @IBOutlet weak var collectionview:UICollectionView!
   
+  var alwaysSwapWithOrigin:Bool!
   var placementTimer:DispatchSourceTimer!
   var longPress:UILongPressGestureRecognizer!
   var movingItems:(origin:IndexPath?,lifted:IndexPath?,placement:IndexPath?,previous:IndexPath?)
   
   override func viewDidLoad() {
     super.viewDidLoad()
+    
+    alwaysSwapWithOrigin = false
     
     collectionview.isScrollEnabled = false
     
@@ -126,6 +129,8 @@ extension ViewController {
     
     self.placementTimer.suspend()
     
+    print(origin,placement,lifted)
+    
     DispatchQueue.main.async {
     
       self.collectionview.endInteractiveMovement()
@@ -134,7 +139,7 @@ extension ViewController {
         
           self.collectionview.moveItem(at:origin, to:placement)
         
-          if let s = second {
+          if let s = second, self.alwaysSwapWithOrigin == true {
             self.collectionview.moveItem(at:placement, to:s)
             self.collectionview.moveItem(at: s, to: origin)
           } else {
@@ -147,6 +152,11 @@ extension ViewController {
           if let p = self.movingItems.placement {
             
             self.movingItems.lifted = p
+            
+            if !self.alwaysSwapWithOrigin {
+              self.movingItems.origin = self.movingItems.lifted
+            }
+            
             self.movingItems.placement = nil
             self.movingItems.previous = nil
 
@@ -161,6 +171,10 @@ extension ViewController {
   }
   
   func cellPositionUpdate() {
+    
+    print(movingItems)
+    
+    
     if let previous = movingItems.previous, let placement = movingItems.placement, let lifted = movingItems.lifted, previous == placement, placement != lifted  {
       swapCells()
     }
