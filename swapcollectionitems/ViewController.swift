@@ -22,13 +22,13 @@ class ViewController: UIViewController {
     collectionview.isScrollEnabled = false
     
     longPress = UILongPressGestureRecognizer(target: self, action:#selector(handleLongGesture))
-    longPress.minimumPressDuration = 0.25
+    longPress.minimumPressDuration = 0.30
     collectionview.addGestureRecognizer(longPress)
     
     let queue = DispatchQueue(label: "com.swapcollectionitems")
     
     placementTimer = DispatchSource.makeTimerSource(flags: [],queue:queue)
-    placementTimer.scheduleRepeating(deadline: .now(), interval:.milliseconds(1000))
+    placementTimer.scheduleRepeating(deadline: .now(), interval:.milliseconds(250))
     placementTimer.setEventHandler(handler: cellPositionUpdate)
   }
 
