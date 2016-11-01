@@ -6,4 +6,4 @@ Timer allows a delay before the item is swapped with the current dragged cell. T
 
 Although not perfect and could do with a refactor to tidy it up, shows a possible method to replicate an item swap capability.
 
-
+![alt tag](https://raw.githubusercontent.com/jbuda/swapCollectionViewItems/master/demo.gif)
