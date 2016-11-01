@@ -14,8 +14,7 @@ class ViewController: UIViewController {
   
   var placementTimer:DispatchSourceTimer!
   var longPress:UILongPressGestureRecognizer!
-  var movingItems:(origin:IndexPath?,lifted:IndexPath?,placement:IndexPath?,second:IndexPath?)
-  //var movingPoints = (current:CGPoint(x:0,y:0),previous:CGPoint(x:0,y:0))
+  var movingItems:(origin:IndexPath?,lifted:IndexPath?,placement:IndexPath?,previous:IndexPath?)
   
   override func viewDidLoad() {
     super.viewDidLoad()
@@ -29,7 +28,7 @@ class ViewController: UIViewController {
     let queue = DispatchQueue(label: "com.swapcollectionitems")
     
     placementTimer = DispatchSource.makeTimerSource(flags: [],queue:queue)
-    placementTimer.scheduleRepeating(deadline: .now(), interval:.milliseconds(250))
+    placementTimer.scheduleRepeating(deadline: .now(), interval:.milliseconds(1000))
     placementTimer.setEventHandler(handler: cellPositionUpdate)
   }
 
@@ -69,29 +68,29 @@ extension ViewController {
     
     switch(g.state) {
     case .began:
-      //movingPoints.current = g.location(in: collectionview)
       
-      //guard let path = collectionview.indexPathForItem(at:movingPoints.current) else {
-      //  break
-      //}
+      guard let origin = collectionview.indexPathForItem(at:g.location(in: collectionview)) else {
+        break
+      }
 
-      //placementTimer.resume()
-     // movingItems.origin = path
-      //movingItems.active = path
+      placementTimer.resume()
+      movingItems.origin = origin
+      movingItems.lifted = origin
       
       collectionview.beginInteractiveMovementForItem(at: movingItems.lifted!)
     case .changed:
-      print("Changed")
-      //movingItems.first = collectionview.indexPathForItem(at: movingPoints.current)
+
+      let p = g.location(in: collectionview)
       
-      //movingPoints.current = g.location(in: collectionview)
-      //collectionview.updateInteractiveMovementTargetPosition(movingPoints.current)
+      movingItems.placement = collectionview.indexPathForItem(at:p)
+      collectionview.updateInteractiveMovementTargetPosition(p)
     case .ended:
 
       placementTimer.suspend()
       movingItems.origin = nil
       movingItems.lifted = nil
       movingItems.placement = nil
+      movingItems.previous = nil
       collectionview.cancelInteractiveMovement()
 
     default:
@@ -104,21 +103,17 @@ extension ViewController {
     
     var second:IndexPath?
     
-    guard let origin = movingItems.origin, var toPath = movingItems.placement else {
+    guard let origin = movingItems.origin, var placement = movingItems.placement, let lifted = movingItems.lifted else {
       return
     }
-    
-    if origin == toPath {
-      DispatchQueue.main.async {
-        self.collectionview.cancelInteractiveMovement()
-      }
 
-      return
-    }
-    
-    if movingItems.origin != movingItems.lifted {
-      toPath = movingItems.lifted!
-      second = movingItems.placement!
+    // can occur when second pass is origin going back to original location
+    // collectionview error moving item at same from / to position
+    if origin == placement {
+      placement = lifted
+    } else if origin != lifted {
+      second = placement
+      placement = lifted
     }
     
     self.placementTimer.suspend()
@@ -128,33 +123,34 @@ extension ViewController {
       self.collectionview.endInteractiveMovement()
       
       self.collectionview.performBatchUpdates({
-        self.collectionview.moveItem(at:origin, to:toPath)
+        
+          self.collectionview.moveItem(at:origin, to:placement)
         
           if let s = second {
-            self.collectionview.moveItem(at:toPath, to:s)
+            self.collectionview.moveItem(at:placement, to:s)
             self.collectionview.moveItem(at: s, to: origin)
           } else {
-            self.collectionview.moveItem(at:toPath, to:origin)
+            self.collectionview.moveItem(at:placement, to:origin)
           }
         }, completion:{ complete in
           // only relevant when user continue changing item
           // gesture ended overrides and cancels this closure
-            self.movingItems.lifted = self.movingItems.placement
-            self.movingItems.placement = nil
+          self.movingItems.lifted = self.movingItems.placement!
+          self.movingItems.placement = nil
+          self.movingItems.previous = nil
 
-            self.collectionview.beginInteractiveMovementForItem(at: self.movingItems.lifted!)
-            self.placementTimer.resume()
-
+          self.collectionview.beginInteractiveMovementForItem(at:self.movingItems.lifted!)
+          self.placementTimer.resume()
       })
     }
   }
   
   func cellPositionUpdate() {
-//    if movingPoints.current == movingPoints.previous {
-//      swapCells()
-//    } else {
-//      movingPoints.previous = movingPoints.current
-//    }
+    if let previous = movingItems.previous, let placement = movingItems.placement, previous == placement {
+      swapCells()
+    }
+
+    movingItems.previous = movingItems.placement
   }
   
 }
