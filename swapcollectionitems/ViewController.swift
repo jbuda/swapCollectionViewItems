@@ -129,8 +129,6 @@ extension ViewController {
     
     self.placementTimer.suspend()
     
-    print(origin,placement,lifted)
-    
     DispatchQueue.main.async {
     
       self.collectionview.endInteractiveMovement()
@@ -171,10 +169,7 @@ extension ViewController {
   }
   
   func cellPositionUpdate() {
-    
-    print(movingItems)
-    
-    
+
     if let previous = movingItems.previous, let placement = movingItems.placement, let lifted = movingItems.lifted, previous == placement, placement != lifted  {
       swapCells()
     }
