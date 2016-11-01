@@ -73,8 +73,9 @@ extension ViewController {
       guard let origin = collectionview.indexPathForItem(at:g.location(in: collectionview)) else {
         break
       }
-
+      
       placementTimer.resume()
+      
       movingItems.origin = origin
       movingItems.lifted = origin
       
@@ -89,8 +90,8 @@ extension ViewController {
       
       collectionview.updateInteractiveMovementTargetPosition(p)
     case .ended:
-
       placementTimer.suspend()
+
       
       collectionview.cellForItem(at: movingItems.lifted!)?.backgroundColor = .red
       
@@ -140,13 +141,20 @@ extension ViewController {
             self.collectionview.moveItem(at:placement, to:origin)
           }
         }, completion:{ complete in
+          
           // only relevant when user continue changing item
           // gesture ended overrides and cancels this closure
-          self.movingItems.lifted = self.movingItems.placement!
-          self.movingItems.placement = nil
-          self.movingItems.previous = nil
+          if let p = self.movingItems.placement {
+            
+            self.movingItems.lifted = p
+            self.movingItems.placement = nil
+            self.movingItems.previous = nil
 
-          self.collectionview.beginInteractiveMovementForItem(at:self.movingItems.lifted!)
+            self.collectionview.beginInteractiveMovementForItem(at:self.movingItems.lifted!)
+          } else {
+            self.collectionview.cellForItem(at:placement)?.backgroundColor = .red
+          }
+          
           self.placementTimer.resume()
       })
     }
