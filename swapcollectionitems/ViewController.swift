@@ -46,6 +46,7 @@ extension ViewController:UICollectionViewDataSource,UICollectionViewDelegate {
   func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
     let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "uicollectionviewcell", for: indexPath) as! CollectionViewItem
     
+    cell.backgroundColor = .red
     cell.title.text = "\(indexPath.row+1)"
     
     return cell
@@ -77,16 +78,22 @@ extension ViewController {
       movingItems.origin = origin
       movingItems.lifted = origin
       
+      collectionview.cellForItem(at: origin)?.backgroundColor = .yellow
+      
       collectionview.beginInteractiveMovementForItem(at: movingItems.lifted!)
     case .changed:
 
       let p = g.location(in: collectionview)
       
       movingItems.placement = collectionview.indexPathForItem(at:p)
+      
       collectionview.updateInteractiveMovementTargetPosition(p)
     case .ended:
 
       placementTimer.suspend()
+      
+      collectionview.cellForItem(at: movingItems.lifted!)?.backgroundColor = .red
+      
       movingItems.origin = nil
       movingItems.lifted = nil
       movingItems.placement = nil
@@ -146,7 +153,7 @@ extension ViewController {
   }
   
   func cellPositionUpdate() {
-    if let previous = movingItems.previous, let placement = movingItems.placement, previous == placement {
+    if let previous = movingItems.previous, let placement = movingItems.placement, let lifted = movingItems.lifted, previous == placement, placement != lifted  {
       swapCells()
     }
 
